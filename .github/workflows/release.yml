@@ -25,12 +25,16 @@ jobs:
           token: ${{ secrets.GH_ACCESS_TOKEN }}
 
       - name: create issue
+        id: create-issue
         uses: JasonEtco/create-an-issue@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
           AUTHOR: ${{ github.actor }}
           TAG: ${{ github.ref_name }}
           CHANGELOG: ${{ steps.build_changelog.outputs.changes }}
+        with:
+          update_existing: true
+      - run: "echo Created issue number ${{ steps.create-issue.outputs.number }}"
 
   check-tests:
     needs: create-issue
@@ -64,10 +68,3 @@ jobs:
           npx gh-pages -d build -u 'github-actions-bot <support+actions@github.com>'
         env:
           GH_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: issue message
-        uses: peter-evans/create-or-update-comment@v3
-        with:
-          issue-number: ${{ needs.create-issue.outputs.number }}
-          body: |
-            ${{ steps.deploy.conclusion }}
