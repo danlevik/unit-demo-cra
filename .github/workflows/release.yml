@@ -38,7 +38,7 @@ jobs:
     uses: danlevik/unit-demo-cra/.github/workflows/testing.yml@master
 
   deploy:
-    needs: check-tests
+    needs: [check-tests, create-issue]
     name: deploy on gh-pages
     runs-on: ubuntu-latest
 
@@ -58,8 +58,16 @@ jobs:
         run: npm run build
 
       - name: deploy
+        id: deploy
         run: |
           git remote set-url origin https://git:${{ secrets.GH_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git
           npx gh-pages -d build -u 'github-actions-bot <support+actions@github.com>'
         env:
           GH_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: issue message
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ needs.create-issue.outputs.number }}
+          body: |
+            ${{ steps.deploy.conclusion }}
