@@ -59,7 +59,7 @@ jobs:
 
       - name: deploy
         run: |
-          git remote set-url origin https://git:${{ secrets.GH_ACCESS_TOKEN }}@github.com/danlevik.git
+          git remote set-url origin https://git:${{ secrets.GH_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git
           npx gh-pages -d build -u 'github-actions-bot <support+actions@github.com>'
         env:
           GH_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
