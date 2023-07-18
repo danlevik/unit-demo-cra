@@ -50,7 +50,7 @@ jobs:
         with:
           token: ${{ secrets.GH_ACCESS_TOKEN }}
           issue-number: ${{ steps.create-issue.outputs.number }}
-          body: ${{ steps.jest-test.conclusion }}
+          body: unit tests result - ${{ steps.jest-test.conclusion }}
 
       - name: install playwright deps
         run: npx playwright install --with-deps
@@ -63,8 +63,9 @@ jobs:
         uses: peter-evans/create-or-update-comment@v3
         if: always()
         with:
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
           issue-number: ${{ steps.create-issue.outputs.number }}
-          body: ${{ steps.jest-test.conclusion }}
+          body: e2e tests result - ${{ steps.jest-test.conclusion }}
 
       - name: build project
         run: npm run build
@@ -83,7 +84,7 @@ jobs:
         with:
           token: ${{ secrets.GH_ACCESS_TOKEN }}
           issue-number: ${{ steps.create-issue.outputs.number }}
-          body: ${{ steps.jest-test.conclusion }}
+          body: deploy result - ${{ steps.jest-test.conclusion }}
 
       - name: close issue
         uses: peter-evans/close-issue@v3
