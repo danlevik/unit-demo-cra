@@ -36,27 +36,33 @@ jobs:
           update_existing: true
       - run: "echo Created issue number ${{ steps.create-issue.outputs.number }}"
 
-  check-tests:
-    needs: create-issue
-    name: check tests
-    uses: danlevik/unit-demo-cra/.github/workflows/testing.yml@master
-
-  deploy:
-    needs: [check-tests, create-issue]
-    name: deploy on gh-pages
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: checkout repo
-        uses: actions/checkout@v3
-
-      - name: setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
       - name: install dependencies
         run: npm ci
+
+      - name: run jest tests
+        id: jest-test
+        run: npm run test-ci:unit
+
+      - name: log jest results
+        uses: peter-evans/create-or-update-comment@v3
+        if: always()
+        with:
+          issue-number: ${{ steps.create-issue.outputs.number }}
+          body: ${{ steps.jest-test.outputs }}
+
+      - name: install playwright deps
+        run: npx playwright install --with-deps
+
+      - name: run e2e tests
+        id: e2e-test
+        run: npm run test-ci:e2e
+
+      - name: log e2e results
+        uses: peter-evans/create-or-update-comment@v3
+        if: always()
+        with:
+          issue-number: ${{ steps.create-issue.outputs.number }}
+          body: ${{ steps.e2e-test.outputs }}
 
       - name: build project
         run: npm run build
@@ -68,3 +74,16 @@ jobs:
           npx gh-pages -d build -u 'github-actions-bot <support+actions@github.com>'
         env:
           GH_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: log deploy result
+        if: always()
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ steps.create-issue.outputs.number }}
+          body: ${{ steps.deploy.outputs }}
+
+      - name: close issue
+        uses: peter-evans/close-issue@v3
+        with:
+          issue-number: ${{ steps.create-issue.outputs.number }}
+          comment: succesful release
