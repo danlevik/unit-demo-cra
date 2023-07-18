@@ -48,6 +48,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v3
         if: always()
         with:
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
           issue-number: ${{ steps.create-issue.outputs.number }}
           body: ${{ steps.jest-test.conclusion }}
 
@@ -80,11 +81,13 @@ jobs:
         if: always()
         uses: peter-evans/create-or-update-comment@v3
         with:
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
           issue-number: ${{ steps.create-issue.outputs.number }}
           body: ${{ steps.jest-test.conclusion }}
 
       - name: close issue
         uses: peter-evans/close-issue@v3
         with:
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
           issue-number: ${{ steps.create-issue.outputs.number }}
           comment: succesful release
