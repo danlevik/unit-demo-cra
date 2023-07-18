@@ -48,7 +48,7 @@ jobs:
         if: always()
         with:
           issue-number: ${{ steps.create-issue.outputs.number }}
-          body: ${{ steps.jest-test.outputs }}
+          body: ${{ join(steps.jest-test.outputs.*, '\n') }}
 
       - name: install playwright deps
         run: npx playwright install --with-deps
@@ -62,7 +62,7 @@ jobs:
         if: always()
         with:
           issue-number: ${{ steps.create-issue.outputs.number }}
-          body: ${{ steps.e2e-test.outputs }}
+          body: ${{ join(steps.e2e-test.outputs.*, '\n') }}
 
       - name: build project
         run: npm run build
@@ -80,7 +80,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ steps.create-issue.outputs.number }}
-          body: ${{ steps.deploy.outputs }}
+          body: ${{ join(steps.deploy.outputs.*, '\n') }}
 
       - name: close issue
         uses: peter-evans/close-issue@v3
